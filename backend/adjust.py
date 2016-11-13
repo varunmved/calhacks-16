@@ -40,7 +40,7 @@ def adjust(typeOfGraph, arg, switch, alpha, title):
         base = "ggplot(df, aes(arg[0]))"
     else if count_args == 2:
         base = "ggplot(df, aes(arg[0], arg[1]))"
-        if typeOfGraph == 'regLine' || typeOfGraph == 'scatter':
+        if typeOfGraph == 'regLine' or typeOfGraph == 'scatter':
             special = adjustAlpha(base, param, alpha)
             if switch == True:
                 base = switch(arg[1], arg[0])

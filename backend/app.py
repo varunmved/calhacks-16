@@ -1,13 +1,122 @@
 import os
 import io
 import csv
+import requests
+from flask import Flask, render_template, request, redirect, url_for, send_from_directory
+from werkzeug import secure_filename
+import pandas as pd
+from random import randint
+from ggplot import *
+
 # We'll render HTML templates and access data sent by POST
 # using the request object from flask. Redirect and url_for
 # will be used to redirect the user once the upload is done
 # and send_from_directory will help us to send/show on the
 # browser the file that the user just uploaded
-from flask import Flask, render_template, request, redirect, url_for, send_from_directory
-from werkzeug import secure_filename
+#csvFile = 'test_data.csv'
+#arg = ['latitude', 'longitude']
+
+ONE_VARIABLE_FUNCS = 1
+TWO_VARIABLE_FUNCS = 4
+MORE_VARIABLE_FUNCS = 4
+COUNT = 0
+
+#utils
+def csv_to_dframe(csvFile):
+    rdr = csv.reader(open(csvFile))
+    line1 = rdr.next() # in Python 2, or next(rdr) in Python 3
+    df = pd.read_csv(csvFile, index_col=0, header=0, names=line1)
+    return df
+
+def save_plot(plot, plot_type):
+    name = str(plot_type + '_' +   str(randint(0,100000000)) + '.png')
+    a = plot.save(name)
+    print(name)
+    return name
+
+def photo(plotJpg):
+    #print('hi')
+    url = "http://uploads.im/api"
+    return(str(plotJpg))
+    payload = ("-----011000010111000001101001\r\nContent-Disposition: form-data; name=\"file\"; filename=\"(%s)\"\r\nContent-Type: image/png\r\n\r\n\r\n-----011000010111000001101001--" % plotJpg)
+    headers = {
+	'content-type': "multipart/form-data; boundary=---011000010111000001101001",
+	'cache-control': "no-cache",
+	'postman-token': "ff6bf677-28d4-bc24-b247-6007fb4d586a"
+	}
+
+    response = requests.request("POST", url, data=payload, headers=headers)
+    #return(response.text)
+
+# 1 variable
+def histogram(data, x):
+    x = str(x)
+    #print(data)
+    save_plot(ggplot(data, aes(x)) + geom_histogram(), 'histogram')
+
+def barGraph(data, x):
+    weights = data.count(x)
+    ggplot(aes(x="x", weight= weights), data) + geom_bar()
+
+def pieChart(data, x):
+    counts = Counter(x)
+    labels = counts.keys()
+    size = counts.values()
+    plt.pie(size = size, labels=labels, autopct='%1.1f%%')
+    #plt.axis('equal')
+    #plt.show()
+    fname = str('pie_' +   str(randint(0,100000000)) + '.png')
+    plt.savefig(fname, bbox_inches='tight')
+
+def facet1(data, x, divider):
+    save_plot(ggplot(data, aes(x,y)) + geom_histogram() + facet_wrap(divider), 'facet_single')
+
+def corrplot(data):
+    plt = scatter_matrix(data)
+    fname = str('correlation_' +   str(randint(0,100000000)) + '.png')
+    plt.savefig(fname, bbox_inches = "tight")
+
+def boxplot(data, x):
+    plt = data.plot(kind = 'box')
+    fname = str('box_' +   str(randint(0,100000000)) + '.png')
+    plt.savefig(fname, bbox_inches = "tight")
+
+
+# 2 variables
+def scatter(data, x, y):
+    save_plot(ggplot(data, aes(x, y)) + geom_point(), 'scatter')
+
+def regLine(data, x, y):
+    save_plot(ggplot(data, aes(x, y)) + geom_point() + stat_smooth(method = "lm", se = False), 'regression')
+
+def smoothLine(data, x, y):
+    save_plot(ggplot(data, aes(x, y)) + stat_smooth(),'smooth_line')
+
+def linePlot(data, x, y):
+    save_plot(ggplot(data, aes(x,y)) + geom_line(), 'line_plot')
+
+
+#runner
+def run(csvFile, arg):
+    count_args = len(arg)
+    df = csv_to_dframe(csvFile)
+    outfiles = []
+    if count_args < 1:
+        print('hi')
+
+    if count_args == 1:
+        outfiles.append('hi')
+        outfiles.append(photo(histogram(df, arg[0])))
+
+    if count_args == 2:
+        outfiles.append('a')
+        scatter(df, arg[0], arg[1])
+        regLine(df, arg[0], arg[1])
+        smoothLine(df, arg[0], arg[1])
+        linePlot(df, arg[0], arg[1])
+
+    return(str(outfiles))
+
 
 # Initialize the Flask application
 app = Flask(__name__)
@@ -34,23 +143,26 @@ def index():
 @app.route('/upload', methods=['POST'])
 def upload():
     # Get the name of the uploaded file
-    file = request.files['file']
+    filen = request.files['file']
     # Check if the file is one of the allowed types/extensions
-    if file and allowed_file(file.filename):
+    if filen and allowed_file(filen.filename):
         # Make the filename safe, remove unsupported chars
-        filename = secure_filename(file.filename)
+        filename = secure_filename(filen.filename)
         # Move the file form the temporal folder to
         # the upload folder we setup
         #file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
         # Redirect the user to the uploaded_file route, which
         # will basicaly show on the browser the uploaded file
         #return redirect(url_for('uploaded_file, filename=filename))
+
         """
         out = r_exec(file)
         return out
         """
-        return (str(file))
-    else
+	arg = ['latitude']
+        return(run(filename, arg))
+        #return (str(file))
+    else:
         return 'sorry no file'
 
 # This route is expecting a parameter containing the name
@@ -60,16 +172,6 @@ def upload():
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'],filename)
-
-def r_exec(file):
-    return 'i like to.. MOVE IT'
-
-def csv2string(data):
-    si = BytesIO.StringIO()
-    cw = csv.writer(si)
-    for one_line_of_data in data:
-        cw.writerow(one_line_of_data)
-    return si.getvalue()
 
 if __name__ == '__main__':
     app.run(debug = True)

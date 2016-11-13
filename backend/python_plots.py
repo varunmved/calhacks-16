@@ -58,7 +58,6 @@ def linePlot(data, x, y):
 def run(csvFile, arg):
     count_args = len(arg)
     df = csv_to_dframe(csvFile)
-    df.head()
     if count_args < 1:
         print('hi')
 

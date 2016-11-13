@@ -21,7 +21,7 @@ window.onload = function(){
         	var arr = reader.result.split(/\r|\n/).map(x => x.split(','))
         	debugger
             document.getElementById('csv-preview').innerHTML = arr.slice(0,5).join('<br>');
-            document.getElementById('var-list').innerHTML = arr[0].map(x => `<input type="checkbox" id="${x.toLowerCase()}" value="second_checkbox"> <label for="${x.toLowerCase()}">${x}</label><br>`).join('')
+            document.getElementById('var-list').innerHTML = arr[0].map(x => `<input type="checkbox" id=${x.toLowerCase()} value=${x.toLowerCase()}> <label for=${x.toLowerCase()}>${x}</label><br>`).join('')
         };
         // start reading the file. When it is done, calls the onload event defined above.
         reader.readAsBinaryString(fileInput.files[0]);

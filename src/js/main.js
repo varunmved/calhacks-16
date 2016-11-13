@@ -64,15 +64,23 @@ window.onload = function(){
 	});
 
 	$('.submitButton').on('click', function(e){
-		console.log($("#graphType option:selected").text());
+		debugger
+		var file = fileInput.files[0]
+		var form = new FormData()
+		form.append('file', file)
+		var varArr = [];
+		const varList = document.getElementById("var-list")
+		varArr = Array.prototype.slice.call(varList.getElementsByTagName('input')).filter(function(value){return value.checked === true}).map(function(value){return value.value});
 		$.ajax({
 			url: "/upload",
 			type: "POST",
+			variables: varArr,
 			alphaValue: document.getElementById('alphaValue').innerText,
 			titleValue: document.getElementById('titleValue').value,
 			typeOfGraph: $("#graphType option:selected").text(), 
 			xValue: document.getElementById('xValue').value,
 			yValue: document.getElementById('yValue').value,
+			fileForm: form,
 			success: function(response){
 				console.log('success')
 				console.log(response);

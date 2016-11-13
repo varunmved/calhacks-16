@@ -1,5 +1,5 @@
 window.onload = function(){
-	var variables = new Set;
+	var variables = new Set();
 
 	const varInput = document.getElementById("var-input")
 	const send = document.getElementById("send")
@@ -42,11 +42,10 @@ window.onload = function(){
 		})*/
 	})
 
-
-
-	$('#var-list').on('click', 'li', function(e) {
-
-	})
+	$('#var-list').on('click', 'li', function(e){
+		variables.delete(e.target.innerText.trim());
+		updateVarList(variables);
+	});
 
 }
 

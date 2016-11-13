@@ -57,7 +57,7 @@ def photo(plotJpg):
 def imgur(plotJpg):
     uploaded_image = im.upload_image(plotJpg, title=plotJpg)
     #print(uploaded_image.title)
-    return(uploaded_image.link)
+    return(str(uploaded_image.link))
 
 
 
@@ -69,7 +69,7 @@ def histogram(data, x):
 
 def barGraph(data, x):
     weights = data.count(x)
-    ggplot(aes(x="x", weight= weights), data) + geom_bar()
+    return save_plot(ggplot(aes(x="x", weight= weights), data) + geom_bar())
 
 def pieChart(data, x):
     counts = Counter(x)
@@ -80,6 +80,7 @@ def pieChart(data, x):
     #plt.show()
     fname = str('pie_' +   str(randint(0,100000000)) + '.png')
     plt.savefig(fname, bbox_inches='tight')
+    return fname
 
 def facet1(data, x, divider):
     return save_plot(ggplot(data, aes(x,y)) + geom_histogram() + facet_wrap(divider), 'facet_single')
@@ -88,25 +89,26 @@ def corrplot(data):
     plt = scatter_matrix(data)
     fname = str('correlation_' +   str(randint(0,100000000)) + '.png')
     plt.savefig(fname, bbox_inches = "tight")
+    return fname
 
 def boxplot(data, x):
     plt = data.plot(kind = 'box')
     fname = str('box_' +   str(randint(0,100000000)) + '.png')
     plt.savefig(fname, bbox_inches = "tight")
-
+    return fname
 
 # 2 variables
 def scatter(data, x, y):
-    save_plot(ggplot(data, aes(x, y)) + geom_point(), 'scatter')
+    return save_plot(ggplot(data, aes(x, y)) + geom_point(), 'scatter')
 
 def regLine(data, x, y):
-    save_plot(ggplot(data, aes(x, y)) + geom_point() + stat_smooth(method = "lm", se = False), 'regression')
+    return save_plot(ggplot(data, aes(x, y)) + geom_point() + stat_smooth(method = "lm", se = False), 'regression')
 
 def smoothLine(data, x, y):
-    save_plot(ggplot(data, aes(x, y)) + stat_smooth(),'smooth_line')
+    return save_plot(ggplot(data, aes(x, y)) + stat_smooth(),'smooth_line')
 
 def linePlot(data, x, y):
-    save_plot(ggplot(data, aes(x,y)) + geom_line(), 'line_plot')
+    return save_plot(ggplot(data, aes(x,y)) + geom_line(), 'line_plot')
 
 
 #runner
@@ -120,16 +122,13 @@ def runS(csvFile, arg):
 
     if count_args == 1:
         fname = (histogram(df, arg[0]))
-        #outfiles.append(photo(histogram(df, arg[0])))
         outfiles.append(imgur(histogram(df, arg[0])))
         #print(fname)
-        #photo(fname)
-
     if count_args == 2:
-        outfiles.append(scatter(df, arg[0], arg[1]))
-        outfiles.append(regLine(df, arg[0], arg[1]))
-        outfiles.append(smoothLine(df, arg[0], arg[1]))
-        outfiles.append(linePlot(df, arg[0], arg[1]))
+        outfiles.append(imgur(scatter(df, arg[0], arg[1])))
+        outfiles.append(imgur(regLine(df, arg[0], arg[1])))
+        outfiles.append(imgur(smoothLine(df, arg[0], arg[1])))
+        outfiles.append(imgur(linePlot(df, arg[0], arg[1])))
 
     return(str(outfiles))
 
@@ -160,20 +159,38 @@ def index():
 def upload():
     # Get the name of the uploaded file
     filen = request.files['file']
-    print(filen.filename)
+    filename = secure_filename(filen.filename)
+
     args = []
-    print(args)
-    xval = (request.form['xvalue'])
+
+    xval = (request.form['xValue'])
     if (xval):
         args.append(str(xval))
-    print(args)
-    filename = secure_filename(filen.filename)
-    return(runS(filename, args))
-    yval = (request.form['yvalue'])
+
+    yval = (request.form['yValue'])
     if yval:
         args.append(str(yval))
+
     print(args)
-    filename = secure_filename(filen.filename)
+    """
+    typeOfGraph = (request.form['typeOfGraph'])
+    if typeOfGraph:
+        args.append(str(typeOfGraph))
+
+    variables = (request.form['variables'])
+    if variables:
+        args.append(str(variableVs))
+
+    alphaValue = request.form['alphaValue']
+    if alphaValue:
+        args.append(str(alphaValue))
+
+    titleValue = request.form['titleValue']
+    if titleValue:
+        args.append(str(titleValue))
+    """
+    print(args)
+    return(runS(filename, args))
     print(str(filen))
     # Check if the file is one of the allowed types/extensions
     if filen and allowed_file(filen.filename):
@@ -196,14 +213,6 @@ def upload():
         #return (str(file))
     else:
         return 'sorry no file'
-
-# This route is expecting a parameter containing the name
-# of a file. Then it will locate that file on the upload
-# directory and show it on the browser, so if the user uploads
-# an image, that image is going to be show after the upload
-@app.route('/uploads/<filename>')
-def uploaded_file(filename):
-    return send_from_directory(app.config['UPLOAD_FOLDER'],filename)
 
 if __name__ == '__main__':
     app.run(debug = True)

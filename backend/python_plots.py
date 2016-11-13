@@ -45,13 +45,13 @@ def scatter(data, x, y):
     save_plot(ggplot(data, aes(x, y)) + geom_point(), 'scatter')
 
 def regLine(data, x, y):
-    save_plot(ggplot(data, aes(x, y) + stat_smooth(method = "lm", se = False)), 'regression')
+    save_plot(ggplot(data, aes(x, y)) + geom_point() + stat_smooth(method = "lm", se = False), 'regression')
 
 def smoothLine(data, x, y):
-    save_plot(ggplot(data, aes(x, y) + stat_smooth()),'smooth_line')
+    save_plot(ggplot(data, aes(x, y)) + stat_smooth(),'smooth_line')
 
 def linePlot(data, x, y):
-    save_plot(ggplot(data, aes(x,y) + geom_line()), 'line_plot')
+    save_plot(ggplot(data, aes(x,y)) + geom_line(), 'line_plot')
 
 
 #runner

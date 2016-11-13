@@ -19,7 +19,6 @@ window.onload = function(){
         var reader = new FileReader();
         reader.onload = function () {
         	var arr = reader.result.split(/\r|\n/).map(x => x.split(','))
-        	debugger
             document.getElementById('csv-preview').innerHTML = arr.slice(0,5).join('<br>');
             document.getElementById('var-list').innerHTML = arr[0].map(x => `<input type="checkbox" id=${x.toLowerCase()} value=${x.toLowerCase()}> <label for=${x.toLowerCase()}>${x}</label><br>`).join('')
         };
@@ -41,7 +40,6 @@ window.onload = function(){
 		form.append('file', file)
 		console.log(form)
 		var url = `/upload?variables=${variables.join(',')}`
-		debugger
 
 		/*$.ajax({
 			url : url,
@@ -64,23 +62,28 @@ window.onload = function(){
 	});
 
 	$('.submitButton').on('click', function(e){
-		debugger
-		var file = fileInput.files[0]
-		var form = new FormData()
-		form.append('file', file)
 		var varArr = [];
 		const varList = document.getElementById("var-list")
 		varArr = Array.prototype.slice.call(varList.getElementsByTagName('input')).filter(function(value){return value.checked === true}).map(function(value){return value.value});
+
+		var file = fileInput.files[0]
+		var form = new FormData()
+		form.append('file', file)
+		form.append('variables', varArr)
+		form.append('alphaValue', document.getElementById('alphaValue').innerText)
+		form.append('titleValue', document.getElementById('titleValue').value)
+		form.append('typeOfGraph', $("#graphType option:selected").text())
+		form.append('xValue', document.getElementById('xValue').value)
+		form.append('yValue', document.getElementById('yValue').value)
+		debugger
+
+		
 		$.ajax({
-			url: "/upload",
+			url: "http://requestb.in/tq4sjftq",
 			type: "POST",
-			variables: varArr,
-			alphaValue: document.getElementById('alphaValue').innerText,
-			titleValue: document.getElementById('titleValue').value,
-			typeOfGraph: $("#graphType option:selected").text(), 
-			xValue: document.getElementById('xValue').value,
-			yValue: document.getElementById('yValue').value,
-			fileForm: form,
+			data: form,
+			processData: false,
+			contentType: false,
 			success: function(response){
 				console.log('success')
 				console.log(response);

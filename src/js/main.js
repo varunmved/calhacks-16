@@ -75,8 +75,7 @@ window.onload = function(){
 		form.append('typeOfGraph', $("#graphType option:selected").text())
 		form.append('xValue', document.getElementById('xValue').value)
 		form.append('yValue', document.getElementById('yValue').value)
-		debugger
-
+		form.append('switchValues', document.getElementById('switchValues').value)
 		
 		$.ajax({
 			url: "http://requestb.in/tq4sjftq",

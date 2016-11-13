@@ -7,6 +7,7 @@ from werkzeug import secure_filename
 import pandas as pd
 from random import randint
 from ggplot import *
+import pyimgur
 
 # We'll render HTML templates and access data sent by POST
 # using the request object from flask. Redirect and url_for
@@ -21,6 +22,10 @@ TWO_VARIABLE_FUNCS = 4
 MORE_VARIABLE_FUNCS = 4
 COUNT = 0
 
+CLIENT_ID = '27eac2b1c4e9f1b'
+im = pyimgur.Imgur(CLIENT_ID)
+
+
 #utils
 def csv_to_dframe(csvFile):
     rdr = csv.reader(open(csvFile))
@@ -31,14 +36,14 @@ def csv_to_dframe(csvFile):
 def save_plot(plot, plot_type):
     name = str(plot_type + '_' +   str(randint(0,100000000)) + '.png')
     a = plot.save(name)
-    print(name)
     return name
+    #return a
 
 def photo(plotJpg):
-    #print('hi')
+    #plotJpg = ('/' + plotJpg)
     url = "http://uploads.im/api"
-    return(str(plotJpg))
-    payload = ("-----011000010111000001101001\r\nContent-Disposition: form-data; name=\"file\"; filename=\"(%s)\"\r\nContent-Type: image/png\r\n\r\n\r\n-----011000010111000001101001--" % plotJpg)
+    payload = ('-----011000010111000001101001\r\nContent-Disposition: form-data; name=\"file\"; filename=\"%s\"\r\nContent-Type: image/png\r\n\r\n\r\n-----011000010111000001101001--' % plotJpg)
+    print(payload)
     headers = {
 	'content-type': "multipart/form-data; boundary=---011000010111000001101001",
 	'cache-control': "no-cache",
@@ -46,13 +51,21 @@ def photo(plotJpg):
 	}
 
     response = requests.request("POST", url, data=payload, headers=headers)
-    #return(response.text)
+    print(response.text)
+    return(response.text)
+
+def imgur(plotJpg):
+    uploaded_image = im.upload_image(plotJpg, title=plotJpg)
+    #print(uploaded_image.title)
+    return(uploaded_image.link)
+
+
 
 # 1 variable
 def histogram(data, x):
     x = str(x)
     #print(data)
-    save_plot(ggplot(data, aes(x)) + geom_histogram(), 'histogram')
+    return save_plot(ggplot(data, aes(x)) + geom_histogram(), 'histogram')
 
 def barGraph(data, x):
     weights = data.count(x)
@@ -69,7 +82,7 @@ def pieChart(data, x):
     plt.savefig(fname, bbox_inches='tight')
 
 def facet1(data, x, divider):
-    save_plot(ggplot(data, aes(x,y)) + geom_histogram() + facet_wrap(divider), 'facet_single')
+    return save_plot(ggplot(data, aes(x,y)) + geom_histogram() + facet_wrap(divider), 'facet_single')
 
 def corrplot(data):
     plt = scatter_matrix(data)
@@ -97,23 +110,26 @@ def linePlot(data, x, y):
 
 
 #runner
-def run(csvFile, arg):
+def runS(csvFile, arg):
     count_args = len(arg)
     df = csv_to_dframe(csvFile)
     outfiles = []
+    #outfiles = ''
     if count_args < 1:
         print('hi')
 
     if count_args == 1:
-        outfiles.append('hi')
-        outfiles.append(photo(histogram(df, arg[0])))
+        fname = (histogram(df, arg[0]))
+        #outfiles.append(photo(histogram(df, arg[0])))
+        outfiles.append(imgur(histogram(df, arg[0])))
+        #print(fname)
+        #photo(fname)
 
     if count_args == 2:
-        outfiles.append('a')
-        scatter(df, arg[0], arg[1])
-        regLine(df, arg[0], arg[1])
-        smoothLine(df, arg[0], arg[1])
-        linePlot(df, arg[0], arg[1])
+        outfiles.append(scatter(df, arg[0], arg[1]))
+        outfiles.append(regLine(df, arg[0], arg[1]))
+        outfiles.append(smoothLine(df, arg[0], arg[1]))
+        outfiles.append(linePlot(df, arg[0], arg[1]))
 
     return(str(outfiles))
 
@@ -144,8 +160,24 @@ def index():
 def upload():
     # Get the name of the uploaded file
     filen = request.files['file']
+    print(filen.filename)
+    args = []
+    print(args)
+    xval = (request.form['xvalue'])
+    if (xval):
+        args.append(str(xval))
+    print(args)
+    filename = secure_filename(filen.filename)
+    return(runS(filename, args))
+    yval = (request.form['yvalue'])
+    if yval:
+        args.append(str(yval))
+    print(args)
+    filename = secure_filename(filen.filename)
+    print(str(filen))
     # Check if the file is one of the allowed types/extensions
     if filen and allowed_file(filen.filename):
+        print(str(filen))
         # Make the filename safe, remove unsupported chars
         filename = secure_filename(filen.filename)
         # Move the file form the temporal folder to
@@ -159,8 +191,8 @@ def upload():
         out = r_exec(file)
         return out
         """
-	arg = ['latitude']
-        return(run(filename, arg))
+	#arg = ['latitude']
+        return(runS(filename, args))
         #return (str(file))
     else:
         return 'sorry no file'

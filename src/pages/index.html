@@ -312,9 +312,23 @@
 
                                     <div id="var-list"></div>
                                 </div>
-                                
                             </div>
-
+                            <div id="graphProps">
+                                <h2>Graph Props</h2>
+                                <ul>
+                                    <li><h4>Adjust Alpha</h4>
+                                        <form>
+                                            <input type="range" name="foo" min="0" max="100">
+                                            <output for="foo" onforminput="value = foo.valueAsNumber;"></output>
+                                        </form>
+                                    </li>
+                                    <li><h4>Adjust Labels</h4>
+                                        Title<input type="text">
+                                        <br/>
+                                        x,y<input type="text">
+                                    </li>
+                                </ul>
+                            </div>
                         </div>
 
 

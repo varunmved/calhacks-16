@@ -49,11 +49,13 @@ window.onload = function(){
 	});
 
 	$('.submitButton').on('click', function(e){
+		console.log($("#graphType option:selected").text());
 		$.ajax({
 			url: "/upload",
 			type: "POST",
 			alphaValue: document.getElementById('alphaValue').innerText,
 			titleValue: document.getElementById('titleValue').value,
+			typeOfGraph: $("#graphType option:selected").text(), 
 			xValue: document.getElementById('xValue').value,
 			yValue: document.getElementById('yValue').value,
 			success: function(response){

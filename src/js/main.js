@@ -2,6 +2,8 @@ window.onload = function(){
 	var variables = new Set();
 
 	const varInput = document.getElementById("var-input")
+	const fileInput = document.getElementById("csv")
+
 	const send = document.getElementById("send")
 
 	function updateVarList(variables) {
@@ -13,6 +15,19 @@ window.onload = function(){
 		varList.appendChild(ol)
 	}
 
+	fileInput.addEventListener('change', function () {
+        var reader = new FileReader();
+        reader.onload = function () {
+        	var arr = reader.result.split('\n').map(x => x.split(','))
+        	debugger
+            document.getElementById('csv-preview').innerHTML = reader.result.split('\n').slice(0,5).join('<br>');
+            debugger
+            document.getElementById('var-list').innerHTML = reader.result.split('\n')[0].split(',').map(x => `<input type="checkbox" id="${x.toLowerCase()}" value="second_checkbox"> <label for="${x.toLowerCase()}">${x}</label><br>`).join('')
+        };
+        // start reading the file. When it is done, calls the onload event defined above.
+        reader.readAsBinaryString(fileInput.files[0]);
+    });
+
 	varInput.addEventListener('keydown', function(e) {
 		if (e.key == 'Enter') {
 			variables.add(e.target.value)
@@ -22,7 +37,6 @@ window.onload = function(){
 	})
 
 	send.addEventListener('click', function(e) {
-		const fileInput = document.getElementById("csv")
 		var file = fileInput.files[0]
 		var form = new FormData()
 		form.append('file', file)

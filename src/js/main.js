@@ -27,9 +27,11 @@ window.onload = function(){
 		var form = new FormData()
 		form.append('file', file)
 		console.log(form)
+		var url = `/upload?variables=${variables.join(',')}`
+		debugger
 
 		/*$.ajax({
-			url : "/upload",
+			url : url,
 	        type: "POST",
 	        cache: false,
 	        contentType: false,

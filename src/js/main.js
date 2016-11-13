@@ -78,7 +78,8 @@ window.onload = function(){
 		form.append('switchValues', document.getElementById('switchValues').value)
 		
 		$.ajax({
-			url: "http://requestb.in/tq4sjftq",
+			//url: "http://requestb.in/tq4sjftq",
+			url: "localhost:5000/upload",
 			type: "POST",
 			data: form,
 			processData: false,
@@ -86,6 +87,7 @@ window.onload = function(){
 			success: function(response){
 				console.log('success')
 				console.log(response);
+				document.getElementById('graphs').innerHTML(response.map(url => `<img src=${url}><br>`).join(''))
 			}
 		})
 	})

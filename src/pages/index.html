@@ -319,15 +319,18 @@
                                     <li><h4>Adjust Alpha</h4>
                                         <form>
                                             <input type="range" name="foo" min="0" max="100">
-                                            <output for="foo" onforminput="value = foo.valueAsNumber;"></output>
+                                            <output id ="alphaValue" for="foo" onforminput="value = foo.valueAsNumber;"></output>
                                         </form>
                                     </li>
                                     <li><h4>Adjust Labels</h4>
-                                        Title<input type="text">
+                                        Title<input type="text" id="titleValue">
                                         <br/>
-                                        x,y<input type="text">
+                                        x<input type="text" id="xValue">
+                                        <br/>
+                                        y<input type="text" id="yValue">
                                     </li>
                                 </ul>
+                                <button class="submitButton">Submit</button>
                             </div>
                         </div>
 

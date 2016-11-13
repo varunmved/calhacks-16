@@ -35,6 +35,7 @@ window.onload = function(){
 	        contentType: false,
 	        processData: false,
 	        data : form,
+	        xCord: xValue
 	        success: function(response){
 	            console.log('success')
 	            console.log(response)
@@ -46,6 +47,26 @@ window.onload = function(){
 		variables.delete(e.target.innerText.trim());
 		updateVarList(variables);
 	});
+
+	$('.submitButton').on('click', function(e){
+		console.log(document.getElementById('alphaValue').innerText);
+		console.log(document.getElementById('titleValue').value);
+		console.log(document.getElementById('xValue').value);
+		console.log(document.getElementById('yValue').value);
+
+		$.ajax({
+			url: "/upload",
+			type: "POST",
+			alphaValue: document.getElementById('alphaValue').innerText,
+			titleValue: document.getElementById('titleValue').value,
+			xValue: document.getElementById('xValue').value,
+			yValue: document.getElementById('yValue').value,
+			success: function(response){
+				console.log('success')
+				console.log(response);
+			}
+		})
+	})
 
 }
 

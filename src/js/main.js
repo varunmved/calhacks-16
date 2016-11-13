@@ -1,5 +1,5 @@
 window.onload = function(){
-	var variables = []
+	var variables = new Set;
 
 	const varInput = document.getElementById("var-input")
 	const send = document.getElementById("send")
@@ -9,13 +9,13 @@ window.onload = function(){
 		let ol = document.createElement('ol')
 
 		varList.innerHTML = ''
-		ol.innerHTML = variables.map(variable => `<li>${variable} <i class="fa fa-close"></i></li>`).join('')
+		ol.innerHTML = Array.from(variables).map(variable => `<li>${variable} <i class="fa fa-close"></i></li>`).join('')
 		varList.appendChild(ol)
 	}
 
 	varInput.addEventListener('keydown', function(e) {
 		if (e.key == 'Enter') {
-			variables.push(e.target.value)
+			variables.add(e.target.value)
 			e.target.value = ''
 			updateVarList(variables)
 		}

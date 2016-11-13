@@ -50,6 +50,8 @@ def upload():
         return out
         """
         return (str(file))
+    else
+        return 'sorry no file'
 
 # This route is expecting a parameter containing the name
 # of a file. Then it will locate that file on the upload

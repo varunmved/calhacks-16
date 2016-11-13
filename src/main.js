@@ -9,7 +9,7 @@ document.onload = function(){
 		let ol = document.createElement('ol')
 		ol.innerHTML = variables.map(variable => `<li>${variable}</li>`)
 		varList.innerHTML = ol
-	}
+	}	
 
 	varInput.addEventListener('keydown', function(e) {
 		if (e.key == 'Enter') {
@@ -23,3 +23,23 @@ document.onload = function(){
 
 
 
+/*
+              T E C H D E B T
+            B             B E
+          E             E   C
+        D             D     H
+      H             H       D
+    C             C         E
+  E             E           B
+T E C H D E B T             T
+E             E           B
+C             C         E
+H             H       D
+D             D     H
+E             E   C
+B             B E
+T E C H D E B T
+
+
+
+*/

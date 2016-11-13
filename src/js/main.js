@@ -49,11 +49,6 @@ window.onload = function(){
 	});
 
 	$('.submitButton').on('click', function(e){
-		console.log(document.getElementById('alphaValue').innerText);
-		console.log(document.getElementById('titleValue').value);
-		console.log(document.getElementById('xValue').value);
-		console.log(document.getElementById('yValue').value);
-
 		$.ajax({
 			url: "/upload",
 			type: "POST",
@@ -67,7 +62,7 @@ window.onload = function(){
 			}
 		})
 	})
-
+	
 }
 
 //Sliders

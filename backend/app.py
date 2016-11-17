@@ -3,11 +3,14 @@ import io
 import csv
 import requests
 from flask import Flask, render_template, request, redirect, url_for, send_from_directory
+from flask.ext.cors import CORS, cross_origin
 from werkzeug import secure_filename
+from werkzeug.datastructures import ImmutableMultiDict
 import pandas as pd
 from random import randint
 from ggplot import *
 import pyimgur
+import json
 
 # We'll render HTML templates and access data sent by POST
 # using the request object from flask. Redirect and url_for
@@ -57,8 +60,8 @@ def photo(plotJpg):
 def imgur(plotJpg):
     uploaded_image = im.upload_image(plotJpg, title=plotJpg)
     #print(uploaded_image.title)
-    return(str(uploaded_image.link))
-
+    #return(str(uploaded_image.link))
+    return (uploaded_image.link)
 
 
 # 1 variable
@@ -130,17 +133,19 @@ def runS(csvFile, arg):
         outfiles.append(imgur(smoothLine(df, arg[0], arg[1])))
         outfiles.append(imgur(linePlot(df, arg[0], arg[1])))
 
-    return(str(outfiles))
+    return(json.dumps(outfiles))
 
 
 # Initialize the Flask application
 app = Flask(__name__)
+cors = CORS(app)
 
 # This is the path to the upload directory
 app.config['UPLOAD_FOLDER'] = 'uploads/'
 # These are the extension that we are accepting to be uploaded
 #app.config['ALLOWED_EXTENSIONS'] = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'])
 app.config['ALLOWED_EXTENSIONS'] = set(['csv'])
+app.config['CORS_HEADERS'] = 'Content-Type'
 
 # For a given file, return whether it's an allowed type or not
 def allowed_file(filename):
@@ -156,23 +161,28 @@ def index():
 
 # Route that will process the file upload
 @app.route('/upload', methods=['POST'])
+@cross_origin()
 def upload():
     # Get the name of the uploaded file
+    imd = ImmutableMultiDict(request.form)
+    print(imd)
     filen = request.files['file']
     filename = secure_filename(filen.filename)
-
     args = []
+    #print('ayyy' + str(request.form['xValue']))
 
-    xval = (request.form['xValue'])
+    xval = imd.getlist('variables')[0].split(',')[0]
     if (xval):
         args.append(str(xval))
+    #print(xval)
 
-    yval = (request.form['yValue'])
+    yval = imd.getlist('variables')[0].split(',')[1]
     if yval:
         args.append(str(yval))
 
     print(args)
     """
+    typeOfGraph = imd.getlist('typeOfGraph')[0].split(',')[1]
     typeOfGraph = (request.form['typeOfGraph'])
     if typeOfGraph:
         args.append(str(typeOfGraph))
